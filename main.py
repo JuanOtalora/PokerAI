@@ -4,47 +4,129 @@ from pynput.mouse import Button, Controller
 import time
 import math
 import cv2
+import random
 
-ImageGrab.grab().save("test.png")
+# GLOBAL VARIABLES --------------------------------------------------------------------------------
+
+log_to_console = False
+
+game_coords = [0, 0, 0, 0]
+player_number = 1
+
+player_coords = {
+	0: [195, 143],
+	1: [630, 143],
+	2: [769, 332],
+	3: [624, 522],
+	4: [202, 523],
+	5: [54, 331]
+}
+
+# idle, on-turn, 
+current_state = 'idle'
+
+RAISE_BET_COORDS = [0, 0]
+FOLD_COORDS = [480, 775]
+CALL_COORDS = [0, 0]
+
+# -------------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------------
+
+# GLOBAL OBJECTS ----------------------------------------------------------------------------------
+
 mouse = Controller()
 
-im = Image.open('testCards/3H.png')
+# -------------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------------
 
-black = 0
-red = 0
-white = 0
+# HELPER FUNCTIONS --------------------------------------------------------------------------------
 
-for pixel in im.getdata():
-	print(pixel)
-	if pixel == (0, 0, 0, 255): # if your image is RGB (if RGBA, (0, 0, 0, 255) or so
-		black += 1
-	elif (pixel[0] >= 245 and pixel[0]) <= 255 and (pixel[1] >= 245 and pixel[1] and (pixel[2] >= 245 and pixel[2]) and (pixel[3] >= 245 and pixel[3])):
-		white += 1
+def debug(string):
+	if log_to_console:
+		print(string)
+
+def current_game_state():
+	coords_red_button = [FOLD_COORDS[0], FOLD_COORDS[1], FOLD_COORDS[0] + 20, FOLD_COORDS[1] + 20]
+	button_red_img = ImageGrab.grab(bbox=coords_red_button)	
+
+	pass_condition = True
+
+	for pixel in button_red_img.getdata():
+		if (pixel[0] > 200 and pixel[0] < 215) and (pixel[1] > 90 and pixel[1] < 100) and (pixel[2] > 90 and pixel[2] < 100):
+			continue
+		else:
+			pass_condition = False
+			break
+
+	if pass_condition:
+		return 'on-turn'
 	else:
-		red += 1
-print('black=' + str(black)+', red='+str(red) +', white='+str(white)  )
+		return 'idle'
 
-# Read pointer position
-# print('The current pointer position is {0}'.format(mouse.position))
+# Will return current pot, current drawn cards, current bet
+def get_game_info():
+	pass
 
-# Set pointer position
-# mouse.position = (10, 20)
-# print('Now we have moved it to {0}'.format(mouse.position))
+def suggestion_action(game_info):
+	return random.choice(['raise', 'fold', 'check', 'call'])
 
-# Move pointer relative to current position
-# mouse.move(5, -5)
+# -------------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------------
 
-# Press and release
-# mouse.press(Button.left)
-# mouse.release(Button.left)
+# GAME ACTIONS ------------------------------------------------------------------------------------
 
-# Double click; this is different from pressing and releasing
-# twice on Mac OSX
-# mouse.click(Button.left, 2)
+def raise_bet(bet):
+	pass
 
-# Scroll two steps down
-# mouse.scroll(0, 2)
+def fold():
+	pass
 
-while True:
-	time.sleep(3)
-	print('The current pointer position is {0}'.format(mouse.position))
+def check():
+	pass
+
+def call():
+	pass
+
+# -------------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------------
+
+def main():
+	while True:
+		# Frame speed
+		time.sleep(1)
+
+		# Get frame
+		current_screen_frame = ImageGrab.grab(bbox=game_coords)
+		debug('Grabed new frame...')
+
+		# Get current game state
+		current_state = current_game_state()
+
+		if current_state == 'idle':
+			pass
+		elif current_state == 'on-turn':
+			game_info = get_game_info()
+			action = suggestion_action(game_info)
+
+			debug(f'Suggested action: {action}')
+
+			if action == 'raise':
+				raise_bet()
+			elif action == 'fold':
+				fold()
+			elif action == 'check':
+				check()
+			elif action == 'call':
+				call()
+
+			current_state = 'idle'
+
+# -------------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------------
+
+main()
