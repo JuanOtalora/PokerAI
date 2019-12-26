@@ -15,12 +15,12 @@ game_coords = [0, 0, 0, 0]
 player_number = 1
 
 player_coords = {
-	0: [195, 143],
-	1: [630, 143],
-	2: [769, 332],
-	3: [624, 522],
-	4: [202, 523],
-	5: [54, 331]
+	0: [195*2, 143*2],
+	1: [630*2, 143*2],
+	2: [769*2, 332*2],
+	3: [624*2, 522*2],
+	4: [202*2, 523*2],
+	5: [54*2, 331*2]
 }
 
 river_coords = [292*2,311*2]
@@ -64,7 +64,6 @@ def current_game_state():
 		if (pixel[0] >= 180 and pixel[0] < 215) and (pixel[1] >= 70 and pixel[1] < 100) and (pixel[2] >= 40 and pixel[2] < 100):
 			continue
 		else:
-			print(pixel)
 			pass_condition = False
 			break
 
@@ -75,7 +74,9 @@ def current_game_state():
 
 # Will return current pot, current drawn cards, current bet
 def get_game_info():
-	card = ""
+	game_cards = []
+	my_cards = []
+
 	y = 0
 	bounding_box = [river_coords[0], river_coords[1], river_coords[0]+30, river_coords[1]+76]
 	for x in range(0,5):
@@ -83,7 +84,28 @@ def get_game_info():
 		card = get_card_value(card_image)
 		y += 132
 		bounding_box = [river_coords[0]+y, river_coords[1], river_coords[0]+30+y, river_coords[1]+76]
-		print(card)
+		
+		if card != '' and card not in game_cards:
+			game_cards.append(card)
+
+	my_cards_coords = player_coords[player_number]
+	y = 0
+	bounding_box = [my_cards_coords[0], my_cards_coords[1], my_cards_coords[0]+30, my_cards_coords[1]+76]
+	for x in range(0,2):
+		card_image = ImageGrab.grab(bbox=bounding_box)	
+		card_image.save(f'my_card_{x}.png')
+		card = get_card_value(card_image)
+		y += 132
+		bounding_box = [my_cards_coords[0]+y, my_cards_coords[1], my_cards_coords[0]+30+y, my_cards_coords[1]+76]
+		
+		if card != '' and card not in game_cards:
+			my_cards.append(card)
+
+	return {
+		'my_cards' : my_cards,
+		'game_cards': game_cards
+	}
+
 
 def suggestion_action(game_info):
 	return random.choice(['raise', 'fold', 'check', 'call'])
@@ -131,7 +153,13 @@ def get_card_value(card_image):
 # GAME ACTIONS ------------------------------------------------------------------------------------
 
 def raise_bet(bet):
-	pass
+	mouse.position = (0, 0)
+	mouse.move(RAISE_BET_COORDS[0]/2, RAISE_BET_COORDS[1]/2)
+	time.sleep(0.1)
+	mouse.click(Button.left, 1)
+	mouse.position = (0, 0)
+
+	# Then click the bet box and raise X amount
 
 def fold():
 	mouse.position = (0, 0)
@@ -159,6 +187,9 @@ def call():
 # -------------------------------------------------------------------------------------------------
 
 def main():
+	player_number_string = input('Please select player number (0-5):')
+	player_number = int(player_number_string)
+
 	while True:
 		# Frame speed
 		time.sleep(1)
