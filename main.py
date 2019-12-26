@@ -1,6 +1,8 @@
 import numpy as np
 from PIL import ImageGrab, Image
 from pynput.mouse import Button, Controller
+from pynput.keyboard import Key
+from pynput.keyboard import Controller as KeyboardController
 import time
 import math
 import cv2
@@ -30,9 +32,9 @@ current_state = 'idle'
 
 
 RAISE_BET_COORDS = [796*2, 775*2]
+RAISE_BET_COORDS_BOX = [796*2, 775*2]
 FOLD_COORDS = [480*2, 775*2]
 CALL_COORDS = [635*2, 775*2]
-
 
 
 # -------------------------------------------------------------------------------------------------
@@ -42,6 +44,7 @@ CALL_COORDS = [635*2, 775*2]
 # GLOBAL OBJECTS ----------------------------------------------------------------------------------
 
 mouse = Controller()
+keyboard = KeyboardController()
 
 # -------------------------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------------------------
@@ -108,6 +111,15 @@ def get_game_info():
 
 
 def suggestion_action(game_info):
+	my_cards = game_info['my_cards']
+	game_cards = game_info['game_cards']
+
+	if len(game_cards) == 0:
+		# My first turn
+		debug('No river detected...')
+	else:
+		pass
+
 	return random.choice(['raise', 'fold', 'check', 'call'])
 
 def get_card_value(card_image):
@@ -158,8 +170,19 @@ def raise_bet(bet):
 	time.sleep(0.1)
 	mouse.click(Button.left, 1)
 	mouse.position = (0, 0)
+	time.sleep(0.1)
 
 	# Then click the bet box and raise X amount
+
+	mouse.move(RAISE_BET_COORDS_BOX[0]/2, RAISE_BET_COORDS_BOX[1]/2)
+
+	bet_string = str(bet)
+	for l in bet_string:
+		keyboard.press(l)
+		keyboard.release(l)
+		time.sleep(0.1)
+
+	mouse.position = (0, 0)
 
 def fold():
 	mouse.position = (0, 0)
@@ -212,7 +235,7 @@ def main():
 			debug(f'Suggested action: {action}')
 
 			if action == 'raise':
-				raise_bet(1)
+				raise_bet(10)
 			elif action == 'fold':
 				fold()
 			elif action == 'check':
