@@ -12,12 +12,14 @@ import json
 # GLOBAL VARIABLES --------------------------------------------------------------------------------
 
 log_to_console = True
+offset_x = 0
+offset_y = -4
 
 game_coords = [0, 0, 0, 0]
-player_number = 1
+player_number = 0
 
 player_coords = {
-	0: [195*2, 143*2],
+	0: [194*2, 140*2],
 	1: [630*2, 143*2],
 	2: [769*2, 332*2],
 	3: [624*2, 522*2],
@@ -25,7 +27,7 @@ player_coords = {
 	5: [54*2, 331*2]
 }
 
-river_coords = [292*2,311*2]
+river_coords = [(292*2)+offset_x,(311*2)+offset_y]
 
 # idle, on-turn, 
 current_state = 'idle'
@@ -93,13 +95,13 @@ def get_game_info():
 
 	my_cards_coords = player_coords[player_number]
 	y = 0
-	bounding_box = [my_cards_coords[0], my_cards_coords[1], my_cards_coords[0]+30, my_cards_coords[1]+76]
+	bounding_box = [my_cards_coords[0], my_cards_coords[1], my_cards_coords[0]+30, my_cards_coords[1]+72]
 	for x in range(0,2):
 		card_image = ImageGrab.grab(bbox=bounding_box)	
 		card_image.save(f'my_card_{x}.png')
 		card = get_card_value(card_image)
-		y += 132
-		bounding_box = [my_cards_coords[0]+y, my_cards_coords[1], my_cards_coords[0]+30+y, my_cards_coords[1]+76]
+		y += 62
+		bounding_box = [my_cards_coords[0]+y, my_cards_coords[1], my_cards_coords[0]+30+y, my_cards_coords[1]+72]
 		
 		if card != '' and card not in game_cards:
 			my_cards.append(card)
@@ -111,6 +113,7 @@ def get_game_info():
 
 
 def suggestion_action(game_info):
+	print(game_info)
 	my_cards = game_info['my_cards']
 	game_cards = game_info['game_cards']
 
@@ -142,7 +145,7 @@ def get_card_value(card_image):
 		black = otherPixel
 	else:
 		red = otherPixel
-
+	
 	card_pixel_values_file = open('card_pixel_values.json','r+')
 	card_pixel_values = {}
 	str_json = card_pixel_values_file.read()
@@ -210,19 +213,16 @@ def call():
 # -------------------------------------------------------------------------------------------------
 
 def main():
-	player_number_string = input('Please select player number (0-5):')
-	player_number = int(player_number_string)
+	#player_number_string = input('Please select player number (0-5):')
+	#player_number = int(player_number_string)
 
 	while True:
 		# Frame speed
 		time.sleep(1)
 
-		# Get frame
-		current_screen_frame = ImageGrab.grab(bbox=game_coords)
-		debug('Grabed new frame...')
-
 		# Get current game state
 		current_state = current_game_state()
+		debug('Grabed new frame...')
 		debug(current_state)
 
 		if current_state == 'idle':
